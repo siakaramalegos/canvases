@@ -106,6 +106,7 @@ const ASPECT_RATIO = {
 }
 
 function getTiltedCanvasUrl(image) {
+  // https://res.cloudinary.com/tedsvintageart/image/upload/v1619797612/Overlays/light-gray-background.jpg
   const {id, orientation} = image
   let displayHeight = MAP_WIDTH
   if (orientation === "horizontal") {
@@ -160,10 +161,6 @@ function getTiltedCanvasUrl(image) {
   return `${baseUrl}/${variables}/${imageTranforms}/${edgeLayer}/${edgeLeft}${flipAndDistortLeft}/f_auto/q_auto/${folder}/${id}.jpg`
 }
 
-// https://res.cloudinary.com/tedsvintageart/image/upload/$w_400,$h_400,$d_20/w_$w,h_$h,b_white,e_distort:40:20:380:40:380:360:40:380/w_$w,h_$h,b_white,l_Maps:3451,o_60,bo_1px_solid_rgb:FFFFFF/w_$d,h_$h,c_crop,g_west/a_hflip/e_distort:0:$d:$d:0:$d:$h:0:420/x_40,y_20,g_west,fl_layer_apply/f_auto/q_auto/Maps/3451.jpg
-// https://res.cloudinary.com/tedsvintageart/image/upload/$w_400,$h_400,$d_20/w_$w,h_$430,b_white,c_fill,e_distort:40:20:380:40:380:360:40:380/w_$w,h_$h,b_white,l_Maps:3451,o_60,bo_1px_solid_rgb:FFFFFF/w_$d,h_$h,c_crop,g_west/a_hflip/e_distort:0:$d:$d:0:$d:$h:0:420/x_40,y_20,g_west,fl_layer_apply/f_auto/q_auto/Maps/3451.jpg
-// https://res.cloudinary.com/tedsvintageart/image/upload/$w_400,$h_400,$d_20/w_$w,h_$400,b_white,c_fill,e_distort:40:20:380:40:380:360:40:380/w_$w,h_$h,b_white,l_Maps:3451,o_60,bo_1px_solid_rgb:FFFFFF/w_$d,h_$h,c_crop,g_west/a_hflip/e_distort:0:$d:$d:0:$d:$h:0:420/x_40,y_20,g_west,fl_layer_apply/f_auto/q_auto/Maps/3451.jpg
-
 function generateTiltedCanvases(targetNode) {
   images.forEach(image => {
     targetNode.appendChild(createH2(image.label))
@@ -177,7 +174,69 @@ function generateTiltedCanvases(targetNode) {
 const tiltedCanvases = document.querySelector("#tilted")
 generateTiltedCanvases(tiltedCanvases)
 
-// Flat canvases
-// https://res.cloudinary.com/tedsvintageart/image/upload/v1619795792/Overlays/canvas-square.jpg
-// https://res.cloudinary.com/tedsvintageart/image/upload/v1619795792/Overlays/canvas-horizontal.jpg
-// https://res.cloudinary.com/tedsvintageart/image/upload/v1619795792/Overlays/canvas-vertical.jpg
+
+// ***************************
+//   Flat canvases
+// ***************************
+
+// New Constants
+const IMAGE_WIDTH = 1500
+const IMAGE_HEIGHT = 1000
+const BACKGROUND_FOLDER = "Overlays"
+const BACKGROUNDS = {
+  square: {
+    file: "canvas-square.jpg",
+    width: 620,
+    height: 620,
+  },
+  horizontal: {
+    file: "canvas-horizontal.jpg",
+    width: 790,
+    height: 565,
+    x: 357,
+    y: 217,
+  },
+  vertical: {
+    file: "canvas-vertical.jpg",
+    width: 552,
+    height: 772,
+  },
+}
+
+function getFlatCanvasUrl(image) {
+  const {id, orientation} = image
+
+  const mapWidth = BACKGROUNDS[orientation].width
+  const mapHeight = BACKGROUNDS[orientation].height
+  const backgroundImage = BACKGROUNDS[orientation].file
+  const x = Math.round(IMAGE_WIDTH - mapWidth / 2)
+  const y = Math.round(IMAGE_HEIGHT - mapHeight / 2)
+
+  const backgroundTranforms = [
+    `w_${IMAGE_WIDTH}`,
+    `h_${IMAGE_HEIGHT}`,
+    "c_fit",
+  ].join(",")
+
+  const mapLayer = [
+    `l_${folder}:${id}`,
+    `w_${mapWidth}`,
+    `h_${mapHeight}`,
+    "c_scale",
+  ].join(",")
+
+  return `${baseUrl}/${backgroundTranforms}/${mapLayer}/f_auto/q_auto/${BACKGROUND_FOLDER}/${backgroundImage}`
+}
+
+function generateFlatCanvases(targetNode) {
+  images.forEach(image => {
+    targetNode.appendChild(createH2(image.label))
+
+    const img = document.createElement("img")
+    img.src = getFlatCanvasUrl(image)
+    targetNode.appendChild(img)
+  })
+}
+
+const flatCanvases = document.querySelector("#flat-canvas")
+generateFlatCanvases(flatCanvases)
