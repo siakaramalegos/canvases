@@ -4,17 +4,14 @@ const images = [{
   id: 1862,
   label: "Horizontal",
   orientation: "horizontal",
-  heightAt400Width: 237,
 }, {
   id: 5191,
   label: "Vertical",
   orientation: "vertical",
-  heightAt400Width: 584,
 }, {
   id: 3451,
   label: "Square-ish",
   orientation: "square",
-  heightAt400Width: 430,
 }]
 
 function createH2(text) {
@@ -59,8 +56,6 @@ const ASPECT_RATIO = {
 
 
 function getTiltedCanvasUrl(image) {
-  // https://res.cloudinary.com/tedsvintageart/image/upload/v1619797612/Overlays/light-gray-background.jpg
-  // https://res.cloudinary.com/tedsvintageart/image/upload/v1619799570/Overlays/light-gray-background.jpg
   const {id, orientation} = image
   const mapWidth = BACKGROUNDS[orientation].width
   const mapHeight = BACKGROUNDS[orientation].height
@@ -98,10 +93,9 @@ function getTiltedCanvasUrl(image) {
   const edgeLayer = [
     "w_$w",
     `h_$h`,
-    "e_brightness:-60",
+    "e_brightness:-60", // make darker
     `l_${folder}:${id}`, // create overlay
     "o_60", // reduced opacity
-    // "bo_1px_solid_rgb:FFFFFF", // solid white border
   ].join(",")
   const edgeLeft = [
     "w_5",
