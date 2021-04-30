@@ -1,4 +1,3 @@
-// Original script with the full working process
 const baseUrl = "https://res.cloudinary.com/tedsvintageart/image/upload"
 const folder = "Maps"
 const images = [{
@@ -23,73 +22,6 @@ function createH2(text) {
   h2.innerText = text
   return h2
 }
-
-function generateImgs(targetNode, transforms) {
-  images.forEach(image => {
-    targetNode.appendChild(createH2(image.label))
-
-    const img = document.createElement("img")
-    img.src = `${baseUrl}/${transforms.join(',')},h_${image.heightAt400Width}/${folder}/${image.id}.jpg`
-    targetNode.appendChild(img)
-  })
-}
-
-// ***************************
-// Basic images
-// ***************************
-const base = document.querySelector("#base")
-generateImgs(base, ["w_400"])
-
-// ***************************
-//         Canvases
-// ***************************
-function getCanvasUrl(image) {
-  // TODO: get image dimensions programmatically
-  // QUESTION: do you already have logic for cropping? (we can just use that)
-  const {id, heightAt400Width} = image
-  const imageTranforms = [
-    "w_400",
-    `h_${heightAt400Width}`,
-    "c_fill",
-  ]
-  const edgeLayer = [
-    ...imageTranforms,
-    `l_${folder}:${id}`, // create overlay
-    "o_60", // reduced opacity
-    "bo_1px_solid_rgb:FFFFFF", // solid white border
-  ].join(",")
-  const edgeRight = [
-    "w_20",
-    `h_${heightAt400Width}`,
-    "c_crop", // crop to the small width
-    "g_east", // use the east side of the image
-  ].join(",")
-  const edgeBottom = [
-    "w_400",
-    "h_20",
-    "c_crop",
-    "g_south"
-  ].join(",")
-  // flip / distort / apply to overlay and place on right/east side
-  const flipAndDistortRight = `/a_hflip/e_distort:0:0:20:20:20:${heightAt400Width + 20}:0:${heightAt400Width}/x_-20,y_9,g_east,fl_layer_apply`
-  // flip / distort / apply to overlay and place on bottom/south side
-  const flipAndDistortBottom = `/a_vflip/e_distort:0:0:400:0:420:20:20:20/y_1,g_south,fl_layer_apply`
-  return `${baseUrl}/${imageTranforms.join(",")}/${edgeLayer}/${edgeRight}${flipAndDistortRight}/${edgeLayer}/${edgeBottom}${flipAndDistortBottom}/f_auto/q_auto/${folder}/${id}.jpg`
-}
-
-function generateCanvases(targetNode) {
-  images.forEach(image => {
-    targetNode.appendChild(createH2(image.label))
-
-    const img = document.createElement("img")
-    img.src = getCanvasUrl(image)
-    targetNode.appendChild(img)
-  })
-}
-
-const canvases = document.querySelector("#canvases")
-generateCanvases(canvases)
-
 
 // ***************************
 //   Tilted canvases
