@@ -76,9 +76,6 @@ function getCanvasUrl(image) {
   return `${baseUrl}/${imageTranforms.join(",")}/${edgeLayer}/${edgeRight}${flipAndDistortRight}/${edgeLayer}/${edgeBottom}${flipAndDistortBottom}/f_auto/q_auto/${folder}/${id}.jpg`
 }
 
-// Variables version
-// https://res.cloudinary.com/demo/image/upload/$w_700,$h_500,$dp_20,$wadp_$w_add_$dp,$hadp_$h_add_$dp/w_$w,h_$h,c_fill/w_$w,h_$h,c_fill,l_art-creative-graffiti,o_60,bo_1px_solid_rgb:FFFFFF/w_$dp,h_$h,c_crop,g_east/a_hflip/e_distort:0:0:$dp:$dp:$dp:$hadp:0:$h/x_$dp_mul_-1,g_north_east,fl_layer_apply/w_$w,h_$h,c_fill,l_art-creative-graffiti,o_60,bo_1px_solid_rgb:FFFFFF/w_$w,h_$dp,c_crop,g_south/a_vflip/e_distort:0:0:$w:0:$wadp:$dp:$dp:$dp/g_south,fl_layer_apply/f_auto,q_auto/art-creative-graffiti.png
-
 function generateCanvases(targetNode) {
   images.forEach(image => {
     targetNode.appendChild(createH2(image.label))
@@ -98,6 +95,28 @@ generateCanvases(canvases)
 // ***************************
 
 // Constants
+const IMAGE_WIDTH = 1500
+const IMAGE_HEIGHT = 1000
+const BG_FILE = "light-gray-background.jpg"
+const BG_FOLDER = "Overlays"
+// This has the flat files but the width and height numbers are useful here too
+const BACKGROUNDS = {
+  square: {
+    file: "canvas-square.jpg",
+    width: 620,
+    height: 620,
+  },
+  horizontal: {
+    file: "canvas-horizontal.jpg",
+    width: 790,
+    height: 565,
+  },
+  vertical: {
+    file: "canvas-vertical.jpg",
+    width: 552,
+    height: 772,
+  },
+}
 const EDGE_WIDTH = 10
 const MAP_WIDTH = 800
 const ASPECT_RATIO = {
@@ -105,38 +124,41 @@ const ASPECT_RATIO = {
   large_axis: 3,
 }
 
+
 function getTiltedCanvasUrl(image) {
   // https://res.cloudinary.com/tedsvintageart/image/upload/v1619797612/Overlays/light-gray-background.jpg
+  // https://res.cloudinary.com/tedsvintageart/image/upload/v1619799570/Overlays/light-gray-background.jpg
   const {id, orientation} = image
-  let displayHeight = MAP_WIDTH
-  if (orientation === "horizontal") {
-    displayHeight = Math.round(MAP_WIDTH * ASPECT_RATIO.small_axis / ASPECT_RATIO.large_axis)
-  } else if (orientation === "vertical") {
-    displayHeight = Math.round(MAP_WIDTH * ASPECT_RATIO.large_axis / ASPECT_RATIO.small_axis)
-  }
+  const mapWidth = BACKGROUNDS[orientation].width
+  const mapHeight = BACKGROUNDS[orientation].height
 
-  const skewedWidth = Math.round(MAP_WIDTH * 0.9)
-  const leftRightMargin = (MAP_WIDTH + EDGE_WIDTH - skewedWidth) / 2
+  const skewedWidth = Math.round(mapWidth * 0.9)
+  const leftRightMargin = Math.round((mapWidth + EDGE_WIDTH - skewedWidth) / 2)
   // from top left to top right to bottom right to bottom left
   const skews = [
     leftRightMargin, 20,
-    MAP_WIDTH - leftRightMargin, 40,
-    MAP_WIDTH - leftRightMargin, displayHeight - 40,
-    leftRightMargin, displayHeight - 20,
+    mapWidth - leftRightMargin, 40,
+    mapWidth - leftRightMargin, mapHeight - 40,
+    leftRightMargin, mapHeight - 20,
   ].join(":")
 
   const variables = [
-    `$w_${MAP_WIDTH}`, // map width
-    `$h_${displayHeight}`, // map height
+    `$w_${mapWidth}`, // map width
+    `$h_${mapHeight}`, // map height
     `$d_${EDGE_WIDTH}`, // display width/depth of canvas edge
   ].join(",")
 
   const imageTranforms = [
+    `w_${IMAGE_WIDTH}`,
+    `h_${IMAGE_HEIGHT}`,
+    "c_crop",
+  ].join(",")
+
+  const mapTranforms = [
+    `l_${folder}:${id}`, // create overlay
     "w_$w",
     `h_$h`,
-    "b_rgb:eee",
     "c_scale",
-    "e_shadow",
     `e_distort:${skews}`,
   ].join(",")
 
@@ -155,10 +177,10 @@ function getTiltedCanvasUrl(image) {
     "g_west", // use the west side of the image
   ].join(",")
   // flip / distort / apply to overlay and place on left/west side
-  const flipAndDistortLeft = `/a_hflip/e_distort:0:$d:$d:0:$d:${displayHeight - 40}:0:${displayHeight - 60}/x_${leftRightMargin - EDGE_WIDTH},y_20,g_west,fl_layer_apply`
+  const flipAndDistortLeft = `/a_hflip/e_distort:0:$d:$d:0:$d:${mapHeight - 40}:0:${mapHeight - 60}/x_${leftRightMargin - EDGE_WIDTH},y_20,g_west,fl_layer_apply`
 
   // flip / distort / apply to overlay and place on bottom/south side
-  return `${baseUrl}/${variables}/${imageTranforms}/${edgeLayer}/${edgeLeft}${flipAndDistortLeft}/f_auto/q_auto/${folder}/${id}.jpg`
+  return `${baseUrl}/${variables}/${imageTranforms}/${mapTranforms}/${edgeLayer}/${edgeLeft}${flipAndDistortLeft}/f_auto/q_auto/${BG_FOLDER}/${BG_FILE}`
 }
 
 function generateTiltedCanvases(targetNode) {
@@ -178,30 +200,6 @@ generateTiltedCanvases(tiltedCanvases)
 // ***************************
 //   Flat canvases
 // ***************************
-
-// New Constants
-const IMAGE_WIDTH = 1500
-const IMAGE_HEIGHT = 1000
-const BACKGROUND_FOLDER = "Overlays"
-const BACKGROUNDS = {
-  square: {
-    file: "canvas-square.jpg",
-    width: 620,
-    height: 620,
-  },
-  horizontal: {
-    file: "canvas-horizontal.jpg",
-    width: 790,
-    height: 565,
-    x: 357,
-    y: 217,
-  },
-  vertical: {
-    file: "canvas-vertical.jpg",
-    width: 552,
-    height: 772,
-  },
-}
 
 function getFlatCanvasUrl(image) {
   const {id, orientation} = image
@@ -225,7 +223,7 @@ function getFlatCanvasUrl(image) {
     "c_scale",
   ].join(",")
 
-  return `${baseUrl}/${backgroundTranforms}/${mapLayer}/f_auto/q_auto/${BACKGROUND_FOLDER}/${backgroundImage}`
+  return `${baseUrl}/${backgroundTranforms}/${mapLayer}/f_auto/q_auto/${BG_FOLDER}/${backgroundImage}`
 }
 
 function generateFlatCanvases(targetNode) {
