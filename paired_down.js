@@ -35,16 +35,19 @@ const BACKGROUNDS = {
     file: "canvas-square.jpg",
     width: 620,
     height: 620,
+    tiltMultiplier: 1.4,
   },
   horizontal: {
     file: "canvas-horizontal.jpg",
     width: 790,
     height: 565,
+    tiltMultiplier: 1.5,
   },
   vertical: {
     file: "canvas-vertical.jpg",
     width: 552,
     height: 772,
+    tiltMultiplier: 1.15,
   },
 }
 const EDGE_WIDTH = 10
@@ -57,8 +60,8 @@ const ASPECT_RATIO = {
 
 function getTiltedCanvasUrl(image) {
   const {id, orientation} = image
-  const mapWidth = BACKGROUNDS[orientation].width
-  const mapHeight = BACKGROUNDS[orientation].height
+  const mapWidth = BACKGROUNDS[orientation].width * BACKGROUNDS[orientation].tiltMultiplier
+  const mapHeight = BACKGROUNDS[orientation].height * BACKGROUNDS[orientation].tiltMultiplier
 
   const skewedWidth = Math.round(mapWidth * 0.9)
   const leftRightMargin = Math.round((mapWidth + EDGE_WIDTH - skewedWidth) / 2)
